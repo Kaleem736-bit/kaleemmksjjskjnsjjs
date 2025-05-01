@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -75,43 +76,46 @@
       <input type="password" id="password" placeholder="كلمة المرور" />
       <input type="password" id="confirm" placeholder="تأكيد كلمة المرور" />
       <button onclick="register()">تسجيل</button>
-    </div><div id="wallet" class="wallet">
-  <h3>مرحبًا <span id="username"></span>!</h3>
-  <div class="balance">
-    <p>العنوان: <span id="address">TXXX...XXX</span></p>
-    <p>الرصيد: <span id="balance">$100.00</span></p>
-    <p>TRX: <span id="trx">500</span></p>
-  </div>
-  <div class="actions">
-    <button onclick="toggleSendForm()">Send</button>
-    <button>Receive</button>
-    <button>Vote</button>
-    <button>Stake</button>
+    </div>
+
+    <div id="wallet" class="wallet">
+      <h3>مرحبًا <span id="username"></span>!</h3>
+      <div class="balance">
+        <p>العنوان: <span id="address">TXXX...XXX</span></p>
+        <p>الرصيد: <span id="balance">$100.00</span></p>
+        <p>TRX: <span id="trx">500</span></p>
+      </div>
+      <div class="actions">
+        <button onclick="toggleSendForm()">Send</button>
+        <button>Receive</button>
+        <button>Vote</button>
+        <button>Stake</button>
+      </div>
+
+      <div id="sendForm" style="display:none">
+        <h3>تحويل إلى عنوان محفظة خارجي</h3>
+        <input type="text" id="toAddress" placeholder="عنوان المحفظة TRC-20" />
+        <select id="currency">
+          <option value="USDT">USDT</option>
+          <option value="TRX">TRX</option>
+          <option value="USDD">USDD</option>
+        </select>
+        <input type="number" id="amount" placeholder="المبلغ المراد تحويله" />
+        <button onclick="sendTransaction()">إرسال</button>
+      </div>
+    </div>
   </div>
 
-  <div id="sendForm" style="display:none">
-    <h3>تحويل إلى عنوان محفظة خارجي</h3>
-    <input type="text" id="toAddress" placeholder="عنوان المحفظة TRC-20" />
-    <select id="currency">
-      <option value="USDT">USDT</option>
-      <option value="TRX">TRX</option>
-      <option value="USDD">USDD</option>
-    </select>
-    <input type="number" id="amount" placeholder="المبلغ المراد تحويله" />
-    <button onclick="sendTransaction()">إرسال</button>
-  </div>
-</div>
-
-  </div>  <script>
+  <script>
     const contractAddresses = {
       USDT: "TXLAQ63Xg1NAzckPwKHvzw7CSEmLMEqcdj",
-      TRX: null, // التحويل المباشر بدون عقد
+      TRX: null,
       USDD: "TMybDHViCeVrsBNM2UAmqvQgTnK1HYVXyA"
     };
 
     const tronWeb = new TronWeb({
       fullHost: "https://api.trongrid.io",
-      privateKey: "<PRIVATE_KEY>" // أدخل المفتاح الخاص هنا فقط للاختبار
+      privateKey: "<PRIVATE_KEY>" // استبدل بمفتاحك الخاص للتجربة فقط
     });
 
     function register() {
@@ -165,5 +169,6 @@
         alert("فشل في الإرسال: " + error.message);
       }
     }
-  </script></body>
+  </script>
+</body>
 </html>
