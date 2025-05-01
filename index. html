@@ -1,0 +1,169 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crypto Wallet</title>
+  <script src="https://cdn.jsdelivr.net/npm/tronweb@4.4.0/dist/TronWeb.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f2f2f2;
+    }
+    .container {
+      max-width: 400px;
+      margin: auto;
+      padding: 20px;
+    }
+    h2, h3 {
+      text-align: center;
+      color: #333;
+    }
+    input, select {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: none;
+      border-radius: 20px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 20px;
+      background-color: #28a745;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .wallet {
+      display: none;
+      background: white;
+      padding: 20px;
+      border-radius: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .balance {
+      background: #eee;
+      border-radius: 20px;
+      padding: 15px;
+      text-align: center;
+      margin: 10px 0;
+    }
+    .actions button {
+      background-color: #007bff;
+      margin-top: 10px;
+    }
+    #sendForm {
+      margin-top: 20px;
+      background-color: #ffffff;
+      padding: 15px;
+      border-radius: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="register">
+      <h2>تسجيل حساب جديد</h2>
+      <input type="text" id="fullname" placeholder="الاسم الكامل" />
+      <input type="email" id="email" placeholder="البريد الإلكتروني" />
+      <input type="tel" id="phone" placeholder="رقم الهاتف" />
+      <input type="password" id="password" placeholder="كلمة المرور" />
+      <input type="password" id="confirm" placeholder="تأكيد كلمة المرور" />
+      <button onclick="register()">تسجيل</button>
+    </div><div id="wallet" class="wallet">
+  <h3>مرحبًا <span id="username"></span>!</h3>
+  <div class="balance">
+    <p>العنوان: <span id="address">TXXX...XXX</span></p>
+    <p>الرصيد: <span id="balance">$100.00</span></p>
+    <p>TRX: <span id="trx">500</span></p>
+  </div>
+  <div class="actions">
+    <button onclick="toggleSendForm()">Send</button>
+    <button>Receive</button>
+    <button>Vote</button>
+    <button>Stake</button>
+  </div>
+
+  <div id="sendForm" style="display:none">
+    <h3>تحويل إلى عنوان محفظة خارجي</h3>
+    <input type="text" id="toAddress" placeholder="عنوان المحفظة TRC-20" />
+    <select id="currency">
+      <option value="USDT">USDT</option>
+      <option value="TRX">TRX</option>
+      <option value="USDD">USDD</option>
+    </select>
+    <input type="number" id="amount" placeholder="المبلغ المراد تحويله" />
+    <button onclick="sendTransaction()">إرسال</button>
+  </div>
+</div>
+
+  </div>  <script>
+    const contractAddresses = {
+      USDT: "TXLAQ63Xg1NAzckPwKHvzw7CSEmLMEqcdj",
+      TRX: null, // التحويل المباشر بدون عقد
+      USDD: "TMybDHViCeVrsBNM2UAmqvQgTnK1HYVXyA"
+    };
+
+    const tronWeb = new TronWeb({
+      fullHost: "https://api.trongrid.io",
+      privateKey: "<PRIVATE_KEY>" // أدخل المفتاح الخاص هنا فقط للاختبار
+    });
+
+    function register() {
+      const fullname = document.getElementById("fullname").value;
+      const email = document.getElementById("email").value;
+      const phone = document.getElementById("phone").value;
+      const password = document.getElementById("password").value;
+      const confirm = document.getElementById("confirm").value;
+
+      if (!fullname || !email || !phone || !password || !confirm) {
+        alert("يرجى ملء جميع الحقول");
+        return;
+      }
+
+      if (password !== confirm) {
+        alert("كلمتا المرور غير متطابقتين");
+        return;
+      }
+
+      document.getElementById("register").style.display = "none";
+      document.getElementById("wallet").style.display = "block";
+      document.getElementById("username").textContent = fullname;
+      alert("تم تسجيل حسابك بنجاح!");
+    }
+
+    function toggleSendForm() {
+      const form = document.getElementById("sendForm");
+      form.style.display = form.style.display === "none" ? "block" : "none";
+    }
+
+    async function sendTransaction() {
+      const to = document.getElementById("toAddress").value;
+      const token = document.getElementById("currency").value;
+      const amount = parseFloat(document.getElementById("amount").value);
+
+      if (!tronWeb.isAddress(to)) {
+        alert("عنوان TRC-20 غير صالح.");
+        return;
+      }
+
+      try {
+        if (token === "TRX") {
+          const tx = await tronWeb.trx.sendTransaction(to, amount * 1e6);
+          alert("تم إرسال TRX بنجاح!\n" + tx.txid);
+        } else {
+          const contract = await tronWeb.contract().at(contractAddresses[token]);
+          const tx = await contract.transfer(to, amount * 1e6).send();
+          alert(`تم إرسال ${amount} ${token} إلى ${to}`);
+        }
+      } catch (error) {
+        alert("فشل في الإرسال: " + error.message);
+      }
+    }
+  </script></body>
+</html>
